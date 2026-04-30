@@ -176,9 +176,12 @@ Rules:
 - Read **every** matching rule file in full. **Multiple rule files may apply** to a single file.
 - For each matching rule file, also read its sibling examples file in `${docs.componentExamples}` (default `documentation/components/Examples/`) (e.g., `Button.md` → `Examples/Button.md`). The examples file contains the canonical good and bad code patterns for that component and is a required input for Phase 3 verification. If the examples file is missing, note it and proceed with the rule file alone.
 
-**Outcome of Phase 2 (branch):**
-- If one or more matching rule files are found → proceed to Phase 3.
-- If no matching rule file exists → take the **"No matching rule file" branch** (below) before continuing to Phase 3.
+**Outcome of Phase 2:**
+
+After matching, produce a summary listing every classified constituent alongside its matched rule file (or "no match"). Then:
+
+- **Constituents with matches** → proceed to Phase 3 with their rule files.
+- **Constituents without matches** → list them explicitly and take the **"No matching rule file" branch** (below) for each one before continuing to Phase 3. A single component may have both matched and unmatched constituents — handle them independently.
 
 ### Phase 3 — Verify against matching rule files
 
@@ -207,17 +210,15 @@ Phase 3 is **report-only**. Do not auto-apply any fix. See **Scope discipline** 
 
 ### Phase 2 branch — No matching rule file found
 
-When Phase 2 produces no matching rule file for a classified component:
+Run this branch for **each** constituent that has no matching rule file. When multiple constituents are unmatched, list them all together so the user can respond once.
 
-1. Ask the user for clarification:
-   > "No matching component rule files were found. Could you provide more information about this component — what is its purpose and how should it behave?"
-2. If the user's response maps to existing rule files, use those files and return to Phase 3.
-3. If the component is genuinely new (confirmed by the user):
-   - Read `${docs.authoringGuide}` (default `documentation/DOCUMENTATION_GUIDE.md`) and follow its heading hierarchy, section authoring rules, external sources, content rules, and workflow to create a new rule file in `${docs.componentRules}`.
-   - Ask the user to fill in missing information for every section except Accessibility.
-   - Extract information from applicable W3C ARIA APG patterns and magentaA11y documentation to complete the Accessibility section. If information is missing, warn the user.
-   - **Do not generate the component code until the rule file is created and confirmed by the user.**
-   - Once confirmed, return to Phase 3 to verify the component against the new rule file.
+1. Present the unmatched constituents to the user:
+   > "The following classified elements have no matching rule files: [list each with its category]. Could you provide more information about their purpose, or do any of these map to existing patterns?"
+2. If the user's response maps any of them to existing rule files, use those files and return to Phase 3 for those constituents.
+3. For any that remain unmatched (confirmed by the user as genuinely new), offer to create rule files:
+   > "No existing rule files cover these patterns: [list]. Would you like me to create rule files for any of them?"
+   - **If the user accepts (for some or all):** Read `${docs.authoringGuide}` (default `documentation/DOCUMENTATION_GUIDE.md`) and follow its heading hierarchy, section authoring rules, external sources, content rules, and workflow to create a new rule file in `${docs.componentRules}` for each accepted item. Ask the user to fill in missing information for every section except Accessibility. Extract information from applicable W3C ARIA APG patterns and magentaA11y documentation to complete the Accessibility section. If information is missing, warn the user. Do not generate the component code until the rule files are created and confirmed by the user. Once confirmed, return to Phase 3 to verify against the new rule files.
+   - **If the user declines:** Proceed without rule files for those constituents. Apply general WCAG 2.2 and ARIA APG best practices during Phase 3 verification, and note in the report which constituents lack component-specific rule files.
 
 ---
 

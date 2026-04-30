@@ -251,7 +251,7 @@ For each composite: use the correct container/child role structure and implement
 
 ### Window roles
 
-**Dialog** — `role="dialog"` with `aria-labelledby` pointing to a visible heading. Use `aria-modal="true"` for modal dialogs. Trap focus inside the dialog (Tab/Shift+Tab cycle within). Escape closes. On open, move focus into the dialog. On close, return focus to the trigger. [APG Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/)
+**Dialog** — `role="dialog"` with `aria-labelledby` pointing to a visible heading. Use `aria-modal="true"` for modal dialogs. Trap focus inside the dialog (Tab/Shift+Tab cycle within). Escape closes. On open, move focus to the first interactive element in the dialog or the first heading if there are no interactive elements. On close, return focus to the trigger. [APG Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/)
 
 **Alert dialog** — `role="alertdialog"` with `aria-labelledby` and `aria-describedby`. Same focus management as dialog. Use when the dialog conveys an urgent message requiring immediate acknowledgment. [APG Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/)
 
