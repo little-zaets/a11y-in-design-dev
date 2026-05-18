@@ -1,3 +1,18 @@
+> **MANDATORY — APPLIES TO EVERY PROMPT, INCLUDING VAGUE OR BROAD REQUESTS**
+>
+> These guidelines govern all code generation in this environment. Every element must pass through Phase 1 (classify) before any code is produced in Phase 2 (generate).
+>
+> **Output contract:**
+> 1. Your first output must be a Phase 1 classification of every element in the design — not code.
+> 2. If any element's function is inferred rather than confirmed, your next output must be only the clarifying questions from Mandatory clarification (Phase 1, step 7) — no code, no defaults, no "I'll proceed with."
+> 3. Code generation (Phase 2) begins only after every unknown is resolved by the user.
+>
+> **This applies regardless of prompt brevity.** "Create this design," "build a landing page," "implement this screen," and similar instructions do not override these phases. Short prompts do not confirm element function and do not satisfy Mandatory clarification.
+>
+> **Do not skip, summarize, or compress these phases.** Partial compliance is non-compliance.
+
+---
+
 # Accessible Code Generation Guidelines
 
 All generated code must conform to **WCAG 2.2** Level AA. The generated code must be perceivable, operable, understandable, and robust for people with visual, motor, cognitive, and other disabilities.
@@ -71,6 +86,7 @@ The following typically **cannot** be determined from visuals alone unless struc
 - **Lists vs. layout** — Repeated visual elements may be a semantic list or a CSS layout; the relationship between items determines the markup.
 - **Dynamic content** — A single frame does not show whether content updates after initial render (live regions) or stays static.
 - **Landmark scope** — Whether a group of links belongs in a `<nav>` landmark or a `<ul>` in content depends on the links' purpose (site navigation vs. related links in content), not on visual grouping.
+- **Semantic containers vs visual grouping** — A bordered, card-styled, or column-separated group does not by itself warrant `<article>`, `<aside>`, or a named `<section>` landmark. Whether the container needs semantics depends on syndicatable content, page-level supplementary purpose, or navigable regions — not on component names (`Card`, `Panel`, `Tile`) or layout alone.
 - **Accessible names for unlabeled controls** — When a control has no visible text label, the accessible name may be provided by a dedicated metadata layer (e.g., an `AriaLabel` text property) or must be deduced from the icon's meaning, component description, or surrounding context.
 
 **Rule:** For every element that falls into one of these gaps and is not made unambiguous by the prompt or clear whole-page context, add it to an **unknowns** list before proceeding. The examples below illustrate when **whole-page context** can narrow ambiguity; they **do not** replace **Mandatory clarification** for interactive controls whose link-vs-button, dialog-vs-disclosure, or similar **activation behavior is unstated**. Examples (still verify against the list above): a primary **Submit** on a form performs an in-page action; on a product detail page, a hero **product image** is often a meaningful image for `alt` — but ambiguous controls on that same screen still require questions under step 7.
@@ -79,14 +95,14 @@ The following typically **cannot** be determined from visuals alone unless struc
 
 Match each element to one of the following categories:
 
-1. **Landmarks** — page regions: `<header>`, `<nav>`, `<main>`, `<footer>`, `<aside>`, `<section>` (only when it has an accessible name), `<form>` (only when it has an accessible name), `<search>`.
+1. **Landmarks** — page regions: `<header>`, `<nav>`, `<main>`, `<footer>`, `<aside>` (only for page-level supplementary content tangentially related to `<main>`), `<section>` (only when it has an accessible name), `<form>` (only when it has an accessible name), `<search>`. Do not classify visually grouped UI modules (cards, tiles, columns) as landmarks.
 2. **Composite widgets** — containers managing child widgets per a single [APG pattern](https://www.w3.org/WAI/ARIA/apg/patterns/): tablist, menu, menubar, listbox, combobox, grid, radiogroup, tree, treegrid. The container has its own role and keyboard model; it stays whole through Phase 2.
 3. **Standalone widgets** — individual interactive controls: link, button, checkbox, radio, switch, slider, spinbutton, tab, textbox, searchbox, menuitem, option, treeitem, progressbar.
-4. **Document structure** — content elements: heading, paragraph, list, listitem, table, figure, article, blockquote, img, meter, separator, toolbar, tooltip.
+4. **Document structure** — content elements: heading, paragraph, list, listitem, table, figure, article (only when self-contained and independently distributable), blockquote, img, meter, separator, toolbar, tooltip.
 5. **Live regions** — dynamic announcements: alert, status, log, timer.
 6. **Window roles** — overlay containers: dialog, alertdialog.
-7. **Wrapper/layout** — elements providing visual structure but no semantic meaning (a `<div>` centering children). These do not need semantic markup but may contain elements that do.
-8. **Composite containers** — elements composing multiple semantic parts that do **not** match any single APG pattern (a card with text and a link, a footer with links). Unlike composite widgets, the container has no semantic role of its own. Decompose into constituents and classify each one individually using the categories above — only the constituents carry forward into Phase 2.
+7. **Wrapper/layout** — elements providing visual structure but no semantic meaning (a `<div>` centering children, a product card shell, a feature tile). These do not need semantic markup but may contain elements that do. **Default** for card-like and module UI unless a more specific category applies.
+8. **Composite containers** — elements composing multiple semantic parts that do **not** match any single APG pattern (a product card with image, title, price, and CTA; a footer with links). Unlike composite widgets, the container has no semantic role of its own — do not wrap it in `<article>`, `<aside>`, or a named `<section>`. Decompose into constituents and classify each one individually using the categories above — only the constituents carry forward into Phase 2.
 
 ### Interaction model
 
@@ -127,6 +143,10 @@ If the Categories list and Interaction model table do not produce a confident cl
 
 **Section vs region landmark** — A `<section>` becomes a `region` landmark only when it has an **accessible name** and its content is important enough for users to navigate to. Not every `<section>` should be a landmark.
 
+**Article vs layout container** — Use `<article>` only when the block is **self-contained content** that could stand alone in a feed or search result (blog post, news story, forum comment). Product cards, feature tiles, pricing blocks, dashboards, and similar UI modules → **wrapper/layout** or **composite container**; classify headings, links, and controls inside individually. Do not use `<article>` because the design names the layer "Card" or groups content visually.
+
+**Aside vs layout container** — Use `<aside>` only for **page-level supplementary content** tangentially related to the primary topic (sidebar, pull quote, related-reading panel). A visually separated column, card grid, filter panel, or in-flow module that is part of the page task belongs inside `<main>` as wrapper/layout — not `<aside>`.
+
 **Static content vs live region** — Content that updates dynamically after initial render needs a **live region** (`role="status"`, `role="alert"`) to announce changes. Content that renders once and does not change is static and needs no live region.
 
 The rules above **name** ambiguities; they do **not** choose a semantic role when **function** is unknown. **Common industry patterns are not answers** — if you would rely on them to pick link vs. button or dialog vs. disclosure, the control is still unresolved; complete Phase 1 step 7 (**Mandatory clarification**). If none of these decision rules resolve the ambiguity — including cases where the user names a control type (e.g., "button," "link," "dropdown") but the design does not make the element's function clear — ask the user a targeted clarifying question before proceeding. The question must identify what is undetermined and offer the specific options (e.g., "Does 'Forgot password?' navigate to a separate page, or does it open a form on the current page?"). Do not default to the user's terminology. Do not guess. Classification must reach 100% confidence before generating markup. Completing Phase 1 step 7 (**Mandatory clarification**) satisfies this requirement when all unknowns are resolved.
@@ -143,6 +163,7 @@ These apply to every element in the generated output.
 
 - **Prefer existing project components.** Before generating new markup for a pattern, check whether the target project already provides an accessible component for it (e.g., a Button, Dialog, or Tabs component in the project's component library or design system). Use the existing component rather than hand-rolling new markup. Code Connect mappings, when available, link design components directly to their codebase implementations.
 - **Prefer semantic HTML** over ARIA. Native elements (`<a>`, `<button>`, `<input>`, `<select>`, `<nav>`, `<main>`, `<table>`, `<ul>`) provide built-in keyboard support, roles, and focus management.
+- **Minimize landmarks and sectioning elements.** Use the shallowest container that preserves meaning. Visual grouping, component names (`Card`, `Panel`, `Tile`), and design-system frames are not grounds for `<article>`, `<aside>`, or a named `<section>` landmark.
 - **Do not assign redundant roles.** Native elements already carry implicit roles. Do not add `role="button"` to `<button>`, `role="link"` to `<a href>`, `role="navigation"` to `<nav>`, `role="main"` to `<main>`, etc.
 - **Accessible name required** on all interactive elements and named landmarks — from text content, `aria-labelledby`, `aria-label`, or `<label>`. For images and graphics, follow **Document structure — Images** (`<img>` + `alt`; non-`img` image markup with `aria-label` / `aria-labelledby` or `aria-hidden="true"`).
 - **Do not duplicate visible text in `aria-label`.** Only use `aria-label` when no visible text exists or visible text is ambiguous.
@@ -156,6 +177,7 @@ These apply to every element in the generated output.
 - **Text contrast:** 4.5:1 minimum (3:1 for large text: 18px+ or 14px+ bold).
 - **Non-text contrast:** UI boundaries, state indicators, and meaningful graphics require 3:1.
 - **Do not rely solely on color** to indicate state, errors, selection, or any information. Always add a non-color cue (underline, outline, icon, opacity, border, text).
+- **Moving, blinking, or auto-updating content** must have a mechanism to pause, stop, or hide it. This applies to carousels, marquees, auto-advancing slideshows, animated banners, live feeds, and any content that starts automatically and lasts more than five seconds. The pause/stop/hide control must be keyboard accessible and appear before the moving content in the DOM.
 
 ### Landmarks
 
@@ -167,7 +189,7 @@ These apply to every element in the generated output.
 | `<nav>` | `navigation` | Always |
 | `<main>` | `main` | One per page |
 | `<footer>` | `contentinfo` | Only when not nested inside `<article>`, `<aside>`, `<main>`, `<nav>`, or `<section>` |
-| `<aside>` | `complementary` | Always |
+| `<aside>` | `complementary` | Only for page-level supplementary content tangentially related to `<main>` — not for cards, tiles, columns, or in-flow modules |
 | `<section>` | `region` | Only when it has an accessible name (`aria-label` or `aria-labelledby`) |
 | `<form>` | `form` | Only when it has an accessible name. Use `search` instead when the form is for search functionality. |
 | `<search>` | `search` | Always. Use instead of `form` for search functionality. |
@@ -178,6 +200,9 @@ These apply to every element in the generated output.
 - Each page must have one `main` landmark. `banner`, `main`, `complementary`, and `contentinfo` must be top-level landmarks (not nested inside other landmarks).
 - Landmarks can be nested to identify parent/child relationships (e.g., a `navigation` inside a `banner`).
 - Aim for seven or fewer landmark regions per page. Value diminishes as the count grows.
+- **Default to wrapper/layout** for visually grouped UI that adds no navigation or document-structure benefit (product cards, feature tiles, pricing modules). Use **composite container** decomposition when the group mixes widgets and text.
+- Do not use `<aside>` per card, column, or panel. At most one **complementary** `<aside>` per page unless multiple distinct supplementary areas truly warrant separate landmarks (each labeled uniquely).
+- Do not use named `<section>` (`region` landmark) for every content block on the page.
 - Do not wrap modal dialog content in a landmark — the dialog itself provides the container, name, and boundaries.
 
 #### Labeling
@@ -250,7 +275,7 @@ For each composite: use the correct container/child role structure and implement
 - **Images** — **`<img>`** — Every `<img>` has an `alt` attribute: a **non-empty** string if the image is **meaningful** (describes purpose or action, not surface appearance), or **`alt=""`** if **decorative**. When the `<img>` is inside a link or button, `alt` describes that control's destination or action. **Image markup that is not `<img>`** (e.g. inline `<svg>`, a wrapper with `role="img"`, or other elements standing in for a picture or icon) — If **meaningful**, provide an accessible name with **`aria-label`** or **`aria-labelledby`**. If **decorative** (or the name is supplied by a parent control), use **`aria-hidden="true"`** so assistive technologies skip it. For **inline `<svg>`**, add **`focusable="false"`** (in addition to `aria-hidden` when decorative) so decorative graphics are not focusable. Do not rely on `role="presentation"` alone to hide complex graphics; prefer `aria-hidden="true"` for non-`img` decorative content.
 - **SVG icons** — When decorative or when a parent link/button already provides the accessible name: `aria-hidden="true"` and `focusable="false"`. When the SVG alone must convey the name (e.g. icon-only control), use `aria-label` on the control or a child title/desc pattern per platform conventions.
 - **Figures** — Wrap with `<figure>` and provide `<figcaption>`.
-- **Articles** — Use `<article>` for self-contained content (blog post, comment, card) that makes sense independently.
+- **Articles** — Use `<article>` only for self-contained compositions distributable on their own (blog post, news story, forum comment). Do not use `<article>` for product cards, feature tiles, dashboard widgets, or other UI modules whose container adds no semantics beyond grouping children — use wrapper/layout, or `<li>` inside a list when the module is one of a repeated set.
 
 ### Live regions
 

@@ -1,3 +1,19 @@
+> **MANDATORY — APPLIES TO EVERY PROMPT, INCLUDING VAGUE OR BROAD REQUESTS**
+>
+> These guidelines govern all code generation in this environment. Every element must pass through Phase 1 (classify) before any code is produced in Phase 2 (generate).
+>
+> **Output contract:**
+> 1. Your first output must be a Phase 1 classification of every element in the design — not code.
+> 2. Every inferred classification must appear in a structured warnings summary (element, assumption, confidence, alternative) included with your output.
+> 3. Every affected element in the generated markup must carry an inline `<!-- a11y-warning: [assumption] -->` comment.
+> 4. Code generation (Phase 2) begins only after Phase 1 classification is complete.
+>
+> **This applies regardless of prompt brevity.** "Create this design," "build a landing page," "implement this screen," and similar instructions do not override these phases. Short prompts do not confirm element function — apply the Resolve ambiguity defaults and document every assumption.
+>
+> **Do not skip, summarize, or compress these phases.** Partial compliance is non-compliance.
+
+---
+
 # Accessible Code Generation Guidelines
 
 All generated code must conform to **WCAG 2.2** Level AA. The generated code must be perceivable, operable, understandable, and robust for people with visual, motor, cognitive, and other disabilities.
@@ -169,6 +185,7 @@ These apply to every element in the generated output.
 - **Text contrast:** 4.5:1 minimum (3:1 for large text: 18px+ or 14px+ bold).
 - **Non-text contrast:** UI boundaries, state indicators, and meaningful graphics require 3:1.
 - **Do not rely solely on color** to indicate state, errors, selection, or any information. Always add a non-color cue (underline, outline, icon, opacity, border, text).
+- **Moving, blinking, or auto-updating content** must have a mechanism to pause, stop, or hide it. This applies to carousels, marquees, auto-advancing slideshows, animated banners, live feeds, and any content that starts automatically and lasts more than five seconds. The pause/stop/hide control must be keyboard accessible and appear before the moving content in the DOM.
 
 ### Landmarks
 
